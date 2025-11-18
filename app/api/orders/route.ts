@@ -1,38 +1,38 @@
-import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { NextRequest } from 'next/server';
+import { executeQuery } from '@/lib/db';
+import { ORDER_QUERIES, ORDER_ITEM_QUERIES, PRODUCT_QUERIES } from '@/lib/queries';
+import { HTTP_STATUS, API_MESSAGES, ORDER_STATUS } from '@/lib/constants';
+import { createSuccessResponse, createErrorResponse, validateRequired, parseNumber, parseIntSafe } from '@/lib/utils';
 
 // GET all orders with user and items
 export async function GET() {
   try {
-    const [orders]: any = await pool.execute(`
-      SELECT 
-        o.*,
-        u.name as user_name,
-        u.email as user_email
-      FROM orders o
-      LEFT JOIN users u ON o.user_id = u.id
-      ORDER BY o.created_at DESC
-    `);
+    const [orders, error]: any = await executeQuery(ORDER_QUERIES.SELECT_ALL);
 
-    // Get order items for each order
-    for (const order of orders) {
-      const [items]: any = await pool.execute(`
-        SELECT 
-          oi.*,
-          p.name as product_name
-        FROM order_items oi
-        LEFT JOIN products p ON oi.product_id = p.id
-        WHERE oi.order_id = ?
-      `, [order.id]);
-      order.items = items;
+    if (error) {
+      return createErrorResponse(error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
-    return NextResponse.json({ success: true, data: orders });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
+    // Get order items for each order asynchronously
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order: any) => {
+        const [items, itemsError]: any = await executeQuery(
+          ORDER_ITEM_QUERIES.SELECT_BY_ORDER_ID,
+          [order.id]
+        );
+        
+        if (itemsError) {
+          console.error(`Error fetching items for order ${order.id}:`, itemsError);
+          return { ...order, items: [] };
+        }
+        
+        return { ...order, items };
+      })
     );
+
+    return createSuccessResponse(ordersWithItems);
+  } catch (error: any) {
+    return createErrorResponse(error.message || 'Failed to fetch orders', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -42,80 +42,86 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { user_id, items } = body;
 
-    if (!user_id || !items || items.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'User ID and items are required' },
-        { status: 400 }
-      );
+    // Validate required fields
+    if (!user_id) {
+      return createErrorResponse(API_MESSAGES.VALIDATION_ERROR.USER_ID_REQUIRED, HTTP_STATUS.BAD_REQUEST);
     }
 
-    // Calculate total
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return createErrorResponse(API_MESSAGES.VALIDATION_ERROR.ITEMS_REQUIRED, HTTP_STATUS.BAD_REQUEST);
+    }
+
+    // Calculate total and validate products asynchronously
     let total = 0;
-    for (const item of items) {
-      const [product]: any = await pool.execute(
-        'SELECT price FROM products WHERE id = ?',
-        [item.product_id]
-      );
-      if (product.length === 0) {
-        return NextResponse.json(
-          { success: false, error: `Product ${item.product_id} not found` },
-          { status: 400 }
+    const productValidations = await Promise.all(
+      items.map(async (item: any) => {
+        const [product, productError]: any = await executeQuery(
+          PRODUCT_QUERIES.SELECT_PRICE,
+          [item.product_id]
         );
-      }
-      total += parseFloat(product[0].price) * parseInt(item.quantity);
+        
+        if (productError || product.length === 0) {
+          return { error: `Product ${item.product_id} not found` };
+        }
+        
+        const price = parseNumber(product[0].price);
+        const quantity = parseIntSafe(item.quantity, 1);
+        total += price * quantity;
+        
+        return { product_id: item.product_id, price, quantity };
+      })
+    );
+
+    // Check for validation errors
+    const validationError = productValidations.find((v: any) => v.error);
+    if (validationError) {
+      return createErrorResponse(validationError.error, HTTP_STATUS.BAD_REQUEST);
     }
 
     // Create order
-    const [orderResult]: any = await pool.execute(
-      'INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)',
-      [user_id, total, 'pending']
+    const [orderResult, orderError]: any = await executeQuery(
+      ORDER_QUERIES.INSERT,
+      [user_id, total, ORDER_STATUS.PENDING]
     );
 
-    const orderId = orderResult.insertId;
-
-    // Create order items
-    for (const item of items) {
-      const [product]: any = await pool.execute(
-        'SELECT price FROM products WHERE id = ?',
-        [item.product_id]
-      );
-      await pool.execute(
-        'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
-        [orderId, item.product_id, item.quantity, product[0].price]
-      );
+    if (orderError) {
+      return createErrorResponse(orderError.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
+    const orderId = (orderResult as any).insertId;
+
+    // Create order items asynchronously
+    await Promise.all(
+      productValidations.map(async (validation: any, index: number) => {
+        const item = items[index];
+        await executeQuery(
+          ORDER_ITEM_QUERIES.INSERT,
+          [orderId, item.product_id, validation.quantity, validation.price]
+        );
+      })
+    );
+
     // Get complete order with items
-    const [newOrder]: any = await pool.execute(`
-      SELECT 
-        o.*,
-        u.name as user_name,
-        u.email as user_email
-      FROM orders o
-      LEFT JOIN users u ON o.user_id = u.id
-      WHERE o.id = ?
-    `, [orderId]);
+    const [newOrder, fetchError]: any = await executeQuery(ORDER_QUERIES.SELECT_BY_ID, [orderId]);
+    
+    if (fetchError || !newOrder[0]) {
+      return createErrorResponse('Failed to fetch created order', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
 
-    const [orderItems]: any = await pool.execute(`
-      SELECT 
-        oi.*,
-        p.name as product_name
-      FROM order_items oi
-      LEFT JOIN products p ON oi.product_id = p.id
-      WHERE oi.order_id = ?
-    `, [orderId]);
-
-    newOrder[0].items = orderItems;
-
-    return NextResponse.json(
-      { success: true, data: newOrder[0] },
-      { status: 201 }
+    const [orderItems, itemsFetchError]: any = await executeQuery(
+      ORDER_ITEM_QUERIES.SELECT_BY_ORDER_ID,
+      [orderId]
     );
+
+    if (itemsFetchError) {
+      console.error('Error fetching order items:', itemsFetchError);
+    }
+
+    newOrder[0].items = orderItems || [];
+
+    return createSuccessResponse(newOrder[0], HTTP_STATUS.CREATED, API_MESSAGES.ORDER_CREATED);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to create order', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 

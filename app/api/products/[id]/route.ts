@@ -1,5 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { NextRequest } from 'next/server';
+import { executeQuery } from '@/lib/db';
+import { PRODUCT_QUERIES } from '@/lib/queries';
+import { HTTP_STATUS, API_MESSAGES } from '@/lib/constants';
+import { createSuccessResponse, createErrorResponse, validateRequired, parseNumber, parseIntSafe } from '@/lib/utils';
 
 // GET product by ID
 export async function GET(
@@ -7,24 +10,19 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const [rows]: any = await pool.execute(
-      'SELECT * FROM products WHERE id = ?',
-      [params.id]
-    );
+    const [rows, error]: any = await executeQuery(PRODUCT_QUERIES.SELECT_BY_ID, [params.id]);
 
-    if (rows.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Product not found' },
-        { status: 404 }
-      );
+    if (error) {
+      return createErrorResponse(error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
-    return NextResponse.json({ success: true, data: rows[0] });
+    if (rows.length === 0) {
+      return createErrorResponse(API_MESSAGES.NOT_FOUND.PRODUCT, HTTP_STATUS.NOT_FOUND);
+    }
+
+    return createSuccessResponse(rows[0]);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to fetch product', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -37,29 +35,43 @@ export async function PUT(
     const body = await request.json();
     const { name, description, price, stock } = body;
 
-    if (!name || !price) {
-      return NextResponse.json(
-        { success: false, error: 'Name and price are required' },
-        { status: 400 }
+    // Validate required fields
+    const validation = validateRequired(body, ['name', 'price']);
+    if (!validation.isValid) {
+      return createErrorResponse(
+        `${API_MESSAGES.VALIDATION_ERROR.NAME_REQUIRED} and ${API_MESSAGES.VALIDATION_ERROR.PRICE_REQUIRED}`,
+        HTTP_STATUS.BAD_REQUEST
       );
     }
 
-    await pool.execute(
-      'UPDATE products SET name = ?, description = ?, price = ?, stock = ? WHERE id = ?',
-      [name, description || '', parseFloat(price), parseInt(stock) || 0, params.id]
-    );
+    // Parse and validate numeric values
+    const parsedPrice = parseNumber(price);
+    const parsedStock = parseIntSafe(stock, 0);
 
-    const [updatedProduct]: any = await pool.execute(
-      'SELECT * FROM products WHERE id = ?',
-      [params.id]
-    );
+    if (parsedPrice <= 0) {
+      return createErrorResponse('Price must be greater than 0', HTTP_STATUS.BAD_REQUEST);
+    }
 
-    return NextResponse.json({ success: true, data: updatedProduct[0] });
+    // Update product
+    const [, updateError] = await executeQuery(
+      PRODUCT_QUERIES.UPDATE,
+      [name, description || '', parsedPrice, parsedStock, params.id]
+    );
+    
+    if (updateError) {
+      return createErrorResponse(updateError.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+
+    // Fetch updated product
+    const [updatedProduct, fetchError]: any = await executeQuery(PRODUCT_QUERIES.SELECT_BY_ID, [params.id]);
+    
+    if (fetchError || !updatedProduct[0]) {
+      return createErrorResponse(API_MESSAGES.NOT_FOUND.PRODUCT, HTTP_STATUS.NOT_FOUND);
+    }
+
+    return createSuccessResponse(updatedProduct[0], HTTP_STATUS.OK, API_MESSAGES.PRODUCT_UPDATED);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to update product', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -69,24 +81,19 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const [result]: any = await pool.execute(
-      'DELETE FROM products WHERE id = ?',
-      [params.id]
-    );
+    const [result, error]: any = await executeQuery(PRODUCT_QUERIES.DELETE, [params.id]);
 
-    if (result.affectedRows === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Product not found' },
-        { status: 404 }
-      );
+    if (error) {
+      return createErrorResponse(error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
-    return NextResponse.json({ success: true, message: 'Product deleted successfully' });
+    if (result.affectedRows === 0) {
+      return createErrorResponse(API_MESSAGES.NOT_FOUND.PRODUCT, HTTP_STATUS.NOT_FOUND);
+    }
+
+    return createSuccessResponse(null, HTTP_STATUS.OK, API_MESSAGES.PRODUCT_DELETED);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to delete product', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 

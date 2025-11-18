@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import '../globals.css';
+import { API_ENDPOINTS, UI_MESSAGES, BUTTON_LABELS, PAGE_TITLES, FORM_LABELS } from '@/lib/client-constants';
 
 interface User {
   id: number;
@@ -24,13 +25,13 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('/api/users');
+      const res = await fetch(API_ENDPOINTS.USERS);
       const data = await res.json();
       if (data.success) {
         setUsers(data.data);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error(UI_MESSAGES.ERRORS.FETCH, error);
     } finally {
       setLoading(false);
     }
@@ -39,7 +40,7 @@ export default function UsersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingUser ? `/api/users/${editingUser.id}` : '/api/users';
+      const url = editingUser ? `${API_ENDPOINTS.USERS}/${editingUser.id}` : API_ENDPOINTS.USERS;
       const method = editingUser ? 'PUT' : 'POST';
       
       const res = await fetch(url, {
@@ -58,8 +59,8 @@ export default function UsersPage() {
         alert(data.error);
       }
     } catch (error) {
-      console.error('Error saving user:', error);
-      alert('Error saving user');
+      console.error(UI_MESSAGES.ERRORS.SAVE, error);
+      alert(UI_MESSAGES.ERRORS.SAVE);
     }
   };
 
@@ -70,10 +71,10 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm(UI_MESSAGES.CONFIRM_DELETE.USER)) return;
 
     try {
-      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_ENDPOINTS.USERS}/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         fetchUsers();
@@ -81,15 +82,15 @@ export default function UsersPage() {
         alert(data.error);
       }
     } catch (error) {
-      console.error('Error deleting user:', error);
-      alert('Error deleting user');
+      console.error(UI_MESSAGES.ERRORS.DELETE, error);
+      alert(UI_MESSAGES.ERRORS.DELETE);
     }
   };
 
   if (loading) {
     return (
       <div className="container">
-        <div className="card">Loading...</div>
+        <div className="card">{UI_MESSAGES.LOADING}</div>
       </div>
     );
   }
@@ -97,12 +98,12 @@ export default function UsersPage() {
   return (
     <div className="container">
       <div style={{ marginBottom: '2rem' }}>
-        <Link href="/" className="btn btn-secondary">← Back to Home</Link>
+        <Link href="/" className="btn btn-secondary">{BUTTON_LABELS.BACK_HOME}</Link>
       </div>
 
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h1>Users Management</h1>
+          <h1>{PAGE_TITLES.USERS}</h1>
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -111,15 +112,15 @@ export default function UsersPage() {
               setFormData({ name: '', email: '' });
             }}
           >
-            {showForm ? 'Cancel' : '+ Add User'}
+            {showForm ? BUTTON_LABELS.CANCEL : BUTTON_LABELS.ADD_USER}
           </button>
         </div>
 
         {showForm && (
           <form onSubmit={handleSubmit} style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f8f9fa', borderRadius: '8px' }}>
-            <h2 style={{ marginBottom: '1rem' }}>{editingUser ? 'Edit User' : 'Add New User'}</h2>
+            <h2 style={{ marginBottom: '1rem' }}>{editingUser ? PAGE_TITLES.EDIT_USER : PAGE_TITLES.ADD_USER}</h2>
             <div className="form-group">
-              <label>Name</label>
+              <label>{FORM_LABELS.NAME}</label>
               <input
                 type="text"
                 value={formData.name}
@@ -128,7 +129,7 @@ export default function UsersPage() {
               />
             </div>
             <div className="form-group">
-              <label>Email</label>
+              <label>{FORM_LABELS.EMAIL}</label>
               <input
                 type="email"
                 value={formData.email}
@@ -137,7 +138,7 @@ export default function UsersPage() {
               />
             </div>
             <button type="submit" className="btn btn-primary">
-              {editingUser ? 'Update User' : 'Create User'}
+              {editingUser ? BUTTON_LABELS.UPDATE_USER : BUTTON_LABELS.CREATE_USER}
             </button>
           </form>
         )}
@@ -146,8 +147,8 @@ export default function UsersPage() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
+              <th>{FORM_LABELS.NAME}</th>
+              <th>{FORM_LABELS.EMAIL}</th>
               <th>Created At</th>
               <th>Actions</th>
             </tr>
@@ -156,7 +157,7 @@ export default function UsersPage() {
             {users.length === 0 ? (
               <tr>
                 <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-                  No users found. Create one to get started!
+                  {UI_MESSAGES.NO_DATA.USERS}
                 </td>
               </tr>
             ) : (
@@ -172,14 +173,14 @@ export default function UsersPage() {
                       style={{ marginRight: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                       onClick={() => handleEdit(user)}
                     >
-                      Edit
+                      {BUTTON_LABELS.EDIT}
                     </button>
                     <button
                       className="btn btn-danger"
                       style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                       onClick={() => handleDelete(user.id)}
                     >
-                      Delete
+                      {BUTTON_LABELS.DELETE}
                     </button>
                   </td>
                 </tr>

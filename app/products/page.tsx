@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import '../globals.css';
+import { API_ENDPOINTS, UI_MESSAGES, BUTTON_LABELS, PAGE_TITLES, FORM_LABELS } from '@/lib/client-constants';
 
 interface Product {
   id: number;
@@ -31,13 +32,13 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch(API_ENDPOINTS.PRODUCTS);
       const data = await res.json();
       if (data.success) {
         setProducts(data.data);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error(UI_MESSAGES.ERRORS.FETCH, error);
     } finally {
       setLoading(false);
     }
@@ -46,7 +47,7 @@ export default function ProductsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
+      const url = editingProduct ? `${API_ENDPOINTS.PRODUCTS}/${editingProduct.id}` : API_ENDPOINTS.PRODUCTS;
       const method = editingProduct ? 'PUT' : 'POST';
       
       const res = await fetch(url, {
@@ -65,8 +66,8 @@ export default function ProductsPage() {
         alert(data.error);
       }
     } catch (error) {
-      console.error('Error saving product:', error);
-      alert('Error saving product');
+      console.error(UI_MESSAGES.ERRORS.SAVE, error);
+      alert(UI_MESSAGES.ERRORS.SAVE);
     }
   };
 
@@ -82,10 +83,10 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm(UI_MESSAGES.CONFIRM_DELETE.PRODUCT)) return;
 
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_ENDPOINTS.PRODUCTS}/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         fetchProducts();
@@ -93,15 +94,15 @@ export default function ProductsPage() {
         alert(data.error);
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
-      alert('Error deleting product');
+      console.error(UI_MESSAGES.ERRORS.DELETE, error);
+      alert(UI_MESSAGES.ERRORS.DELETE);
     }
   };
 
   if (loading) {
     return (
       <div className="container">
-        <div className="card">Loading...</div>
+        <div className="card">{UI_MESSAGES.LOADING}</div>
       </div>
     );
   }
@@ -109,12 +110,12 @@ export default function ProductsPage() {
   return (
     <div className="container">
       <div style={{ marginBottom: '2rem' }}>
-        <Link href="/" className="btn btn-secondary">← Back to Home</Link>
+        <Link href="/" className="btn btn-secondary">{BUTTON_LABELS.BACK_HOME}</Link>
       </div>
 
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h1>Products Management</h1>
+          <h1>{PAGE_TITLES.PRODUCTS}</h1>
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -123,15 +124,15 @@ export default function ProductsPage() {
               setFormData({ name: '', description: '', price: '', stock: '' });
             }}
           >
-            {showForm ? 'Cancel' : '+ Add Product'}
+            {showForm ? BUTTON_LABELS.CANCEL : BUTTON_LABELS.ADD_PRODUCT}
           </button>
         </div>
 
         {showForm && (
           <form onSubmit={handleSubmit} style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f8f9fa', borderRadius: '8px' }}>
-            <h2 style={{ marginBottom: '1rem' }}>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
+            <h2 style={{ marginBottom: '1rem' }}>{editingProduct ? PAGE_TITLES.EDIT_PRODUCT : PAGE_TITLES.ADD_PRODUCT}</h2>
             <div className="form-group">
-              <label>Name</label>
+              <label>{FORM_LABELS.NAME}</label>
               <input
                 type="text"
                 value={formData.name}
@@ -140,7 +141,7 @@ export default function ProductsPage() {
               />
             </div>
             <div className="form-group">
-              <label>Description</label>
+              <label>{FORM_LABELS.DESCRIPTION}</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -148,7 +149,7 @@ export default function ProductsPage() {
               />
             </div>
             <div className="form-group">
-              <label>Price</label>
+              <label>{FORM_LABELS.PRICE}</label>
               <input
                 type="number"
                 step="0.01"
@@ -158,7 +159,7 @@ export default function ProductsPage() {
               />
             </div>
             <div className="form-group">
-              <label>Stock</label>
+              <label>{FORM_LABELS.STOCK}</label>
               <input
                 type="number"
                 value={formData.stock}
@@ -167,7 +168,7 @@ export default function ProductsPage() {
               />
             </div>
             <button type="submit" className="btn btn-primary">
-              {editingProduct ? 'Update Product' : 'Create Product'}
+              {editingProduct ? BUTTON_LABELS.UPDATE_PRODUCT : BUTTON_LABELS.CREATE_PRODUCT}
             </button>
           </form>
         )}
@@ -176,10 +177,10 @@ export default function ProductsPage() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Stock</th>
+              <th>{FORM_LABELS.NAME}</th>
+              <th>{FORM_LABELS.DESCRIPTION}</th>
+              <th>{FORM_LABELS.PRICE}</th>
+              <th>{FORM_LABELS.STOCK}</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -187,7 +188,7 @@ export default function ProductsPage() {
             {products.length === 0 ? (
               <tr>
                 <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
-                  No products found. Create one to get started!
+                  {UI_MESSAGES.NO_DATA.PRODUCTS}
                 </td>
               </tr>
             ) : (
@@ -204,14 +205,14 @@ export default function ProductsPage() {
                       style={{ marginRight: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                       onClick={() => handleEdit(product)}
                     >
-                      Edit
+                      {BUTTON_LABELS.EDIT}
                     </button>
                     <button
                       className="btn btn-danger"
                       style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                       onClick={() => handleDelete(product.id)}
                     >
-                      Delete
+                      {BUTTON_LABELS.DELETE}
                     </button>
                   </td>
                 </tr>

@@ -1,5 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { NextRequest } from 'next/server';
+import { executeQuery } from '@/lib/db';
+import { USER_QUERIES } from '@/lib/queries';
+import { HTTP_STATUS, API_MESSAGES } from '@/lib/constants';
+import { createSuccessResponse, createErrorResponse, validateRequired, isValidEmail } from '@/lib/utils';
 
 // GET user by ID
 export async function GET(
@@ -7,24 +10,19 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const [rows]: any = await pool.execute(
-      'SELECT * FROM users WHERE id = ?',
-      [params.id]
-    );
+    const [rows, error]: any = await executeQuery(USER_QUERIES.SELECT_BY_ID, [params.id]);
 
-    if (rows.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
+    if (error) {
+      return createErrorResponse(error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
-    return NextResponse.json({ success: true, data: rows[0] });
+    if (rows.length === 0) {
+      return createErrorResponse(API_MESSAGES.NOT_FOUND.USER, HTTP_STATUS.NOT_FOUND);
+    }
+
+    return createSuccessResponse(rows[0]);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to fetch user', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -37,29 +35,40 @@ export async function PUT(
     const body = await request.json();
     const { name, email } = body;
 
-    if (!name || !email) {
-      return NextResponse.json(
-        { success: false, error: 'Name and email are required' },
-        { status: 400 }
+    // Validate required fields
+    const validation = validateRequired(body, ['name', 'email']);
+    if (!validation.isValid) {
+      return createErrorResponse(
+        `${API_MESSAGES.VALIDATION_ERROR.NAME_REQUIRED} and ${API_MESSAGES.VALIDATION_ERROR.EMAIL_REQUIRED}`,
+        HTTP_STATUS.BAD_REQUEST
       );
     }
 
-    await pool.execute(
-      'UPDATE users SET name = ?, email = ? WHERE id = ?',
-      [name, email, params.id]
-    );
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return createErrorResponse(
+        API_MESSAGES.VALIDATION_ERROR.INVALID_EMAIL,
+        HTTP_STATUS.BAD_REQUEST
+      );
+    }
 
-    const [updatedUser]: any = await pool.execute(
-      'SELECT * FROM users WHERE id = ?',
-      [params.id]
-    );
+    // Update user
+    const [, updateError] = await executeQuery(USER_QUERIES.UPDATE, [name, email, params.id]);
+    
+    if (updateError) {
+      return createErrorResponse(updateError.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
 
-    return NextResponse.json({ success: true, data: updatedUser[0] });
+    // Fetch updated user
+    const [updatedUser, fetchError]: any = await executeQuery(USER_QUERIES.SELECT_BY_ID, [params.id]);
+    
+    if (fetchError || !updatedUser[0]) {
+      return createErrorResponse(API_MESSAGES.NOT_FOUND.USER, HTTP_STATUS.NOT_FOUND);
+    }
+
+    return createSuccessResponse(updatedUser[0], HTTP_STATUS.OK, API_MESSAGES.USER_UPDATED);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to update user', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -69,24 +78,19 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const [result]: any = await pool.execute(
-      'DELETE FROM users WHERE id = ?',
-      [params.id]
-    );
+    const [result, error]: any = await executeQuery(USER_QUERIES.DELETE, [params.id]);
 
-    if (result.affectedRows === 0) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
+    if (error) {
+      return createErrorResponse(error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
-    return NextResponse.json({ success: true, message: 'User deleted successfully' });
+    if (result.affectedRows === 0) {
+      return createErrorResponse(API_MESSAGES.NOT_FOUND.USER, HTTP_STATUS.NOT_FOUND);
+    }
+
+    return createSuccessResponse(null, HTTP_STATUS.OK, API_MESSAGES.USER_DELETED);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to delete user', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 

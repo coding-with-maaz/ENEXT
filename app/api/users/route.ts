@@ -1,16 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { NextRequest } from 'next/server';
+import { executeQuery } from '@/lib/db';
+import { USER_QUERIES } from '@/lib/queries';
+import { HTTP_STATUS, API_MESSAGES } from '@/lib/constants';
+import { createSuccessResponse, createErrorResponse, validateRequired, isValidEmail } from '@/lib/utils';
 
 // GET all users
 export async function GET() {
   try {
-    const [rows] = await pool.execute('SELECT * FROM users ORDER BY created_at DESC');
-    return NextResponse.json({ success: true, data: rows });
+    const [rows, error] = await executeQuery(USER_QUERIES.SELECT_ALL);
+    
+    if (error) {
+      return createErrorResponse(error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+
+    return createSuccessResponse(rows);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to fetch users', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -20,32 +25,41 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, email } = body;
 
-    if (!name || !email) {
-      return NextResponse.json(
-        { success: false, error: 'Name and email are required' },
-        { status: 400 }
+    // Validate required fields
+    const validation = validateRequired(body, ['name', 'email']);
+    if (!validation.isValid) {
+      return createErrorResponse(
+        `${API_MESSAGES.VALIDATION_ERROR.NAME_REQUIRED} and ${API_MESSAGES.VALIDATION_ERROR.EMAIL_REQUIRED}`,
+        HTTP_STATUS.BAD_REQUEST
       );
     }
 
-    const [result]: any = await pool.execute(
-      'INSERT INTO users (name, email) VALUES (?, ?)',
-      [name, email]
-    );
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return createErrorResponse(
+        API_MESSAGES.VALIDATION_ERROR.INVALID_EMAIL,
+        HTTP_STATUS.BAD_REQUEST
+      );
+    }
 
-    const [newUser] = await pool.execute(
-      'SELECT * FROM users WHERE id = ?',
-      [result.insertId]
-    );
+    // Insert user
+    const [result, insertError]: any = await executeQuery(USER_QUERIES.INSERT, [name, email]);
+    
+    if (insertError) {
+      return createErrorResponse(insertError.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
 
-    return NextResponse.json(
-      { success: true, data: newUser[0] },
-      { status: 201 }
-    );
+    // Fetch created user
+    const insertId = (result as any).insertId;
+    const [newUser, fetchError]: any = await executeQuery(USER_QUERIES.SELECT_BY_ID, [insertId]);
+    
+    if (fetchError || !newUser[0]) {
+      return createErrorResponse('Failed to fetch created user', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+
+    return createSuccessResponse(newUser[0], HTTP_STATUS.CREATED, API_MESSAGES.USER_CREATED);
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return createErrorResponse(error.message || 'Failed to create user', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
