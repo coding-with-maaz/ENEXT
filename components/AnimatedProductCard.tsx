@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
-import { ShoppingCart, Check, Package, Sparkles } from 'lucide-react';
+import { ShoppingCart, Check, Package, Sparkles, Star } from 'lucide-react';
+import { getProductImage } from '@/lib/product-images';
 
 interface AnimatedProductCardProps {
   id: number;
@@ -46,30 +47,39 @@ export default function AnimatedProductCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative h-full bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 flex flex-col">
+      <div className="relative h-full bg-white/95 backdrop-blur-md rounded-3xl border-2 border-gray-200/50 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 flex flex-col group/card">
         {/* Gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-500 pointer-events-none z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/8 group-hover:via-purple-500/8 group-hover:to-pink-500/8 transition-all duration-500 pointer-events-none z-10"></div>
+        
+        {/* Corner accent */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-500 rounded-bl-full pointer-events-none z-10"></div>
         
         <Link href={`/product/${id}`} className="flex flex-col h-full">
           {/* Image Section */}
-          <div className="relative w-full h-56 sm:h-64 md:h-72 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-hidden">
+          <div className="relative w-full h-56 sm:h-64 md:h-72 bg-gradient-to-br from-gray-50 via-gray-100 to-blue-50 overflow-hidden">
             {/* Decorative gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/10 group-hover:via-purple-500/10 group-hover:to-pink-500/10 transition-all duration-500"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/15 group-hover:via-purple-500/15 group-hover:to-pink-500/15 transition-all duration-500"></div>
             
-            {image ? (
-              <img
-                src={image}
-                alt={name}
-                className={`w-full h-full object-cover transition-all duration-700 ${
-                  isHovered ? 'scale-110 rotate-1' : 'scale-100 rotate-0'
-                }`}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-6xl sm:text-7xl md:text-8xl relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 to-purple-100/50"></div>
-                <span className="relative z-10">🛍️</span>
-              </div>
-            )}
+            {/* Animated background pattern */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, rgb(59 130 246 / 0.1) 1px, transparent 0)`,
+                backgroundSize: '20px 20px'
+              }}></div>
+            </div>
+            
+            <img
+              src={image || getProductImage(name, id)}
+              alt={name}
+              className={`w-full h-full object-cover transition-all duration-700 ${
+                isHovered ? 'scale-110 rotate-1' : 'scale-100 rotate-0'
+              }`}
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.src = getProductImage(name, id);
+              }}
+            />
             
             {/* Stock Badge */}
             {stock === 0 ? (
@@ -100,12 +110,20 @@ export default function AnimatedProductCard({
           </div>
 
           {/* Content Section */}
-          <div className="p-5 sm:p-6 flex-1 flex flex-col relative z-10">
+          <div className="p-5 sm:p-6 flex-1 flex flex-col relative z-10 bg-gradient-to-b from-transparent to-white/50">
             {/* Category/Tag */}
-            <div className="mb-3">
-              <span className="inline-block px-3 py-1 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 rounded-lg text-xs font-semibold border border-blue-100">
-                Product
+            <div className="mb-3 flex items-center gap-2">
+              <span className="inline-block px-3 py-1 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100 shadow-sm">
+                Premium
               </span>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className="w-3 h-3 fill-yellow-400 text-yellow-400"
+                  />
+                ))}
+              </div>
             </div>
 
             {/* Title */}

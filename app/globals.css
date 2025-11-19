@@ -485,6 +485,16 @@ textarea::placeholder {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Mobile optimizations */
 @media (max-width: 640px) {
   /* Improve text readability on mobile */

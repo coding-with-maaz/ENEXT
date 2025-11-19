@@ -5,6 +5,7 @@ import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
+import { getProductImage } from '@/lib/product-images';
 
 export default function CartPage() {
   const router = useRouter();
@@ -80,9 +81,17 @@ export default function CartPage() {
                   className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 p-6 animate-fade-in"
                 >
                   <div className="flex flex-col sm:flex-row gap-6">
-                    <div className="w-full sm:w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center text-5xl flex-shrink-0">
-                      🛍️
-                    </div>
+                  <div className="relative w-full sm:w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden flex-shrink-0">
+                    <img
+                      src={item.image || getProductImage(item.name, item.id)}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = getProductImage(item.name, item.id);
+                      }}
+                    />
+                  </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-xl font-bold text-gray-900 mb-2">
                         {item.name}
