@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from './ui/Button';
 
@@ -22,6 +23,7 @@ const slides: Slide[] = [
     title: 'New Collection',
     subtitle: 'Spring 2024',
     description: 'Discover the latest trends in fashion and style',
+    image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba3e6829?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80',
     gradient: 'from-pink-500 via-purple-500 to-indigo-600',
     buttonText: 'Shop Now',
     buttonLink: '/shop',
@@ -31,6 +33,7 @@ const slides: Slide[] = [
     title: 'Summer Sale',
     subtitle: 'Up to 50% Off',
     description: 'Get amazing deals on your favorite products',
+    image: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80',
     gradient: 'from-blue-500 via-cyan-500 to-teal-600',
     buttonText: 'Explore Deals',
     buttonLink: '/shop',
@@ -40,6 +43,7 @@ const slides: Slide[] = [
     title: 'Premium Quality',
     subtitle: 'Luxury Collection',
     description: 'Experience elegance and sophistication',
+    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80',
     gradient: 'from-amber-500 via-orange-500 to-red-600',
     buttonText: 'View Collection',
     buttonLink: '/shop',
@@ -118,7 +122,22 @@ export default function HeroSlider() {
               : 'opacity-0 z-0 scale-105'
           }`}
         >
-          <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`}>
+          <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} overflow-hidden`}>
+            {/* Background Image */}
+            {slide.image && (
+              <div className="absolute inset-0">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  className="object-cover opacity-30 sm:opacity-40"
+                  priority={index === 0}
+                  unoptimized
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-transparent"></div>
+              </div>
+            )}
+            
             {/* Animated Background Pattern */}
             <div className="absolute inset-0 opacity-10 sm:opacity-20">
               <div className="absolute top-0 left-0 w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-blob" />
@@ -128,13 +147,15 @@ export default function HeroSlider() {
             {/* Content */}
             <div className="relative z-10 h-full flex items-center">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                <div
-                  className={`max-w-full sm:max-w-xl md:max-w-2xl text-white transform transition-all duration-1000 delay-300 ${
-                    index === currentSlide
-                      ? 'translate-x-0 opacity-100'
-                      : 'translate-x-10 opacity-0'
-                  }`}
-                >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                  {/* Text Content */}
+                  <div
+                    className={`max-w-full sm:max-w-xl md:max-w-2xl text-white transform transition-all duration-1000 delay-300 ${
+                      index === currentSlide
+                        ? 'translate-x-0 opacity-100'
+                        : 'translate-x-10 opacity-0'
+                    }`}
+                  >
                   <div className="mb-4 sm:mb-6">
                     <span className="inline-block px-4 py-2 sm:px-6 sm:py-3 bg-white/20 backdrop-blur-md rounded-full text-xs sm:text-sm font-bold mb-4 sm:mb-6 shadow-lg border border-white/30">
                       {slide.subtitle}
@@ -158,6 +179,34 @@ export default function HeroSlider() {
                       </Button>
                     </Link>
                   </div>
+                </div>
+                
+                {/* Product Image */}
+                {slide.image && (
+                  <div
+                    className={`flex items-center justify-center transform transition-all duration-1000 delay-500 ${
+                      index === currentSlide
+                        ? 'translate-x-0 opacity-100 scale-100'
+                        : 'translate-x-10 opacity-0 scale-95'
+                    }`}
+                  >
+                    <div className="relative w-full max-w-md lg:max-w-lg">
+                      <div className="absolute inset-0 bg-white/20 backdrop-blur-md rounded-3xl transform rotate-6"></div>
+                      <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-4 sm:p-6 lg:p-8 border border-white/20 shadow-2xl">
+                        <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-2xl">
+                          <Image
+                            src={slide.image}
+                            alt={slide.title}
+                            fill
+                            className="object-cover"
+                            priority={index === 0}
+                            unoptimized
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 </div>
               </div>
             </div>

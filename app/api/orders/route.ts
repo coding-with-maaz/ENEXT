@@ -40,7 +40,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { user_id, items } = body;
+    const { 
+      user_id, 
+      items, 
+      customer_info, 
+      shipping_info, 
+      billing_info, 
+      shipping_method 
+    } = body;
 
     // Validate required fields
     if (!user_id) {
