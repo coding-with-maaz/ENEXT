@@ -88,7 +88,7 @@ export default function OrdersPage() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>
-                      ${order.total.toFixed(2)}
+                      ${(typeof order.total === 'string' ? parseFloat(order.total) : order.total).toFixed(2)}
                     </div>
                     <div
                       style={{
@@ -122,8 +122,8 @@ export default function OrdersPage() {
                         <tr key={item.id}>
                           <td>{item.product_name}</td>
                           <td>{item.quantity}</td>
-                          <td>${item.price.toFixed(2)}</td>
-                          <td>${(item.price * item.quantity).toFixed(2)}</td>
+                          <td>${(typeof item.price === 'string' ? parseFloat(item.price) : item.price).toFixed(2)}</td>
+                          <td>${((typeof item.price === 'string' ? parseFloat(item.price) : item.price) * item.quantity).toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>

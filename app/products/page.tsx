@@ -197,7 +197,7 @@ export default function ProductsPage() {
                   <td>{product.id}</td>
                   <td>{product.name}</td>
                   <td>{product.description || '-'}</td>
-                  <td>${product.price.toFixed(2)}</td>
+                  <td>${(typeof product.price === 'string' ? parseFloat(product.price) : product.price).toFixed(2)}</td>
                   <td>{product.stock}</td>
                   <td>
                     <button

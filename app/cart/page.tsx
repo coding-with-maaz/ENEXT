@@ -69,7 +69,7 @@ export default function CartPage() {
                       {item.name}
                     </h3>
                     <p style={{ color: 'var(--gray-600)', marginBottom: '1rem' }}>
-                      ${item.price.toFixed(2)} each
+                      ${(typeof item.price === 'string' ? parseFloat(item.price) : item.price).toFixed(2)} each
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -107,7 +107,7 @@ export default function CartPage() {
                         color: 'var(--primary)',
                       }}
                     >
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${((typeof item.price === 'string' ? parseFloat(item.price) : item.price) * item.quantity).toFixed(2)}
                     </div>
                   </div>
                 </div>

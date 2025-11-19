@@ -15,10 +15,13 @@ interface ProductCardProps {
 export default function ProductCard({ id, name, description, price, stock, image }: ProductCardProps) {
   const { addToCart } = useCart();
 
+  // Ensure price is a number
+  const priceNum = typeof price === 'string' ? parseFloat(price) : price;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart({ id, name, price, image });
+    addToCart({ id, name, price: priceNum, image });
   };
 
   return (
@@ -107,7 +110,7 @@ export default function ProductCard({ id, name, description, price, stock, image
                   color: 'var(--primary)',
                 }}
               >
-                ${price.toFixed(2)}
+                ${priceNum.toFixed(2)}
               </span>
             </div>
             <button

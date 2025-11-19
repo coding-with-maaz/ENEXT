@@ -238,7 +238,7 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                       <div style={{ fontWeight: '600' }}>
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${((typeof item.price === 'string' ? parseFloat(item.price) : item.price) * item.quantity).toFixed(2)}
                       </div>
                     </div>
                   ))}

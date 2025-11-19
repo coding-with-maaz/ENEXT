@@ -117,7 +117,7 @@ export default function ProductDetailPage() {
                   color: 'var(--primary)',
                 }}
               >
-                ${product.price.toFixed(2)}
+                ${(typeof product.price === 'string' ? parseFloat(product.price) : product.price).toFixed(2)}
               </span>
             </div>
 
