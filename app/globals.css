@@ -376,6 +376,19 @@ textarea::placeholder {
   animation-delay: 4s;
 }
 
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 5s linear;
+}
+
 /* Line clamp utility */
 .line-clamp-1 {
   display: -webkit-box;
@@ -391,6 +404,12 @@ textarea::placeholder {
   overflow: hidden;
 }
 
+/* Touch optimization */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
@@ -400,5 +419,20 @@ textarea::placeholder {
   .grid-3,
   .grid-4 {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  /* Improve text readability on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Better touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
   }
 }

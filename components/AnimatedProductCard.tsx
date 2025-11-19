@@ -49,7 +49,7 @@ export default function AnimatedProductCard({
     >
       <Card hover className="overflow-hidden h-full flex flex-col p-0">
         <Link href={`/product/${id}`}>
-          <div className="relative w-full h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-xl">
+          <div className="relative w-full h-48 sm:h-56 md:h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-xl">
             {image ? (
               <img
                 src={image}
@@ -59,13 +59,13 @@ export default function AnimatedProductCard({
                 }`}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-6xl">
+              <div className="w-full h-full flex items-center justify-center text-4xl sm:text-5xl md:text-6xl">
                 🛍️
               </div>
             )}
             
             {stock === 0 && (
-              <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-red-500 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
                 Out of Stock
               </div>
             )}
@@ -77,18 +77,18 @@ export default function AnimatedProductCard({
             />
           </div>
 
-          <div className="p-6 flex-1 flex flex-col">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors duration-300">
+          <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors duration-300">
               {name}
             </h3>
             
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
+            <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 flex-1">
               {description || 'No description available'}
             </p>
 
-            <div className="flex items-center justify-between mt-auto">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mt-auto">
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-blue-600">
+                <span className="text-xl sm:text-2xl font-bold text-blue-600">
                   ${priceNum.toFixed(2)}
                 </span>
                 {stock > 0 && (
@@ -103,7 +103,7 @@ export default function AnimatedProductCard({
                 disabled={stock === 0 || isAdding}
                 size="sm"
                 variant={isAdding ? 'secondary' : 'primary'}
-                className="relative overflow-hidden"
+                className="relative overflow-hidden w-full sm:w-auto min-w-[120px]"
               >
                 {isAdding ? (
                   <>
