@@ -1,152 +1,118 @@
 import Link from 'next/link';
+import { Facebook, Twitter, Instagram } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer
-      style={{
-        background: 'var(--gray-900)',
-        color: 'var(--gray-300)',
-        padding: '4rem 0 2rem',
-        marginTop: '4rem',
-      }}
-    >
-      <div className="container">
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '3rem',
-            marginBottom: '3rem',
-          }}
-        >
+    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300 overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-12">
           {/* Company Info */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)',
-                  borderRadius: 'var(--radius)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--white)',
-                  fontWeight: 'bold',
-                  fontSize: '1.25rem',
-                }}
-              >
+          <div className="animate-fade-in">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
                 E
               </div>
-              <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--white)' }}>
+              <span className="text-2xl font-bold text-white">
                 ENEXT
               </span>
             </div>
-            <p style={{ color: 'var(--gray-400)', lineHeight: '1.8', marginBottom: '1rem' }}>
+            <p className="text-gray-400 leading-relaxed mb-6 text-sm sm:text-base">
               Your trusted destination for quality products. We're committed to providing the best shopping experience.
             </p>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <a href="#" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
+            <div className="flex gap-4">
+              <a 
+                href="#" 
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-blue-600 rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                </svg>
+              <a 
+                href="#" 
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-blue-400 rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Twitter"
+              >
+                <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.057-1.266-.07-1.646-.07-4.85 0-3.204.015-3.586.07-4.859.061-1.17.255-1.816.42-2.236.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.057 1.65-.07 4.859-.07zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" />
-                </svg>
+              <a 
+                href="#" 
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-pink-600 rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 style={{ color: 'var(--white)', marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <h3 className="text-white font-bold mb-6 text-lg">
               Quick Links
             </h3>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li>
-                <Link href="/shop" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  Shop
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link href="/cart" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  Shopping Cart
-                </Link>
-              </li>
+            <ul className="space-y-3">
+              {[
+                { href: '/shop', label: 'Shop' },
+                { href: '/about', label: 'About Us' },
+                { href: '/contact', label: 'Contact' },
+                { href: '/cart', label: 'Shopping Cart' },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href} 
+                    className="text-gray-400 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Customer Service */}
-          <div>
-            <h3 style={{ color: 'var(--white)', marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+            <h3 className="text-white font-bold mb-6 text-lg">
               Customer Service
             </h3>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li>
-                <Link href="#" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  Shipping Info
-                </Link>
-              </li>
-              <li>
-                <Link href="#" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  Returns
-                </Link>
-              </li>
-              <li>
-                <Link href="#" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="#" style={{ color: 'var(--gray-400)', transition: 'var(--transition)' }}>
-                  Privacy Policy
-                </Link>
-              </li>
+            <ul className="space-y-3">
+              {[
+                { href: '#', label: 'Shipping Info' },
+                { href: '#', label: 'Returns' },
+                { href: '#', label: 'FAQ' },
+                { href: '#', label: 'Privacy Policy' },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href} 
+                    className="text-gray-400 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Newsletter */}
-          <div>
-            <h3 style={{ color: 'var(--white)', marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <h3 className="text-white font-bold mb-6 text-lg">
               Newsletter
             </h3>
-            <p style={{ color: 'var(--gray-400)', marginBottom: '1rem', fontSize: '0.875rem' }}>
+            <p className="text-gray-400 mb-4 text-sm">
               Subscribe to get special offers and updates
             </p>
-            <form style={{ display: 'flex', gap: '0.5rem' }}>
+            <form className="space-y-3">
               <input
                 type="email"
                 placeholder="Your email"
-                style={{
-                  flex: 1,
-                  padding: '0.75rem',
-                  border: '1px solid var(--gray-700)',
-                  borderRadius: 'var(--radius)',
-                  background: 'var(--gray-800)',
-                  color: 'var(--white)',
-                }}
+                className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
               />
               <button
                 type="submit"
-                className="btn btn-primary"
-                style={{ padding: '0.75rem 1.5rem' }}
+                className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Subscribe
               </button>
@@ -154,19 +120,12 @@ export default function Footer() {
           </div>
         </div>
 
-        <div
-          style={{
-            paddingTop: '2rem',
-            borderTop: '1px solid var(--gray-800)',
-            textAlign: 'center',
-            color: 'var(--gray-500)',
-            fontSize: '0.875rem',
-          }}
-        >
-          <p>&copy; {new Date().getFullYear()} ENEXT. All rights reserved.</p>
+        <div className="border-t border-gray-700 pt-8 mt-8 text-center">
+          <p className="text-gray-400 text-sm">
+            &copy; {new Date().getFullYear()} ENEXT. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
   );
 }
-
