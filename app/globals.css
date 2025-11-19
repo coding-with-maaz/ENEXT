@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -339,6 +343,54 @@ textarea::placeholder {
   100% { transform: rotate(360deg); }
 }
 
+/* Custom Animations */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Line clamp utility */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
@@ -348,14 +400,5 @@ textarea::placeholder {
   .grid-3,
   .grid-4 {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-
-  /* Mobile menu styles */
-  .mobile-menu-btn {
-    display: block !important;
-  }
-
-  nav > div > div:first-of-type > div:last-of-type > a:not(:last-child) {
-    display: none;
   }
 }

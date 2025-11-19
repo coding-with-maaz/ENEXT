@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Providers from './providers'
-import Navbar from '@/components/Navbar'
+import AnimatedNavbar from '@/components/AnimatedNavbar'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
@@ -18,8 +18,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          <Navbar />
-          <main style={{ minHeight: 'calc(100vh - 200px)' }}>
+          <AnimatedNavbar />
+          <main className="pt-20" style={{ minHeight: 'calc(100vh - 200px)' }}>
             {children}
           </main>
           <Footer />

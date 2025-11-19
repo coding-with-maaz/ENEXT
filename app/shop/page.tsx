@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ProductCard from '@/components/ProductCard';
+import AnimatedProductCard from '@/components/AnimatedProductCard';
+import { ProductCardSkeleton } from '@/components/ui/Loading';
+import Button from '@/components/ui/Button';
 import { API_ENDPOINTS } from '@/lib/client-constants';
 
 interface Product {
@@ -71,36 +73,28 @@ export default function ShopPage() {
   };
 
   return (
-    <div style={{ padding: '2rem 0' }}>
-      <div className="container">
-        <div style={{ marginBottom: '3rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Shop</h1>
-          <p style={{ color: 'var(--gray-600)', fontSize: '1.125rem' }}>
+    <div className="py-8 animate-fade-in">
+      <div className="container mx-auto px-4">
+        <div className="mb-8 animate-slide-down">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Shop</h1>
+          <p className="text-gray-600 text-lg">
             Browse our complete collection of products
           </p>
         </div>
 
         {/* Search and Sort */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-          }}
-        >
+        <div className="flex gap-4 mb-8 flex-wrap items-center animate-fade-in">
           <input
             type="text"
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ flex: 1, minWidth: '200px', maxWidth: '400px' }}
+            className="flex-1 min-w-[200px] max-w-md px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
           />
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            style={{ minWidth: '200px' }}
+            className="min-w-[200px] px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
           >
             <option value="name">Sort by Name</option>
             <option value="price-low">Price: Low to High</option>
@@ -110,26 +104,34 @@ export default function ShopPage() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="spinner"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
         ) : filteredProducts.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-            <p style={{ color: 'var(--gray-600)', marginBottom: '2rem', fontSize: '1.125rem' }}>
+          <div className="text-center py-16 animate-fade-in">
+            <p className="text-gray-600 mb-6 text-lg">
               {searchTerm ? 'No products found matching your search.' : 'No products available yet.'}
             </p>
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="btn btn-primary">
-                Clear Search
-              </button>
+              <Button onClick={() => setSearchTerm('')}>Clear Search</Button>
             )}
           </div>
         ) : (
           <>
-            <div style={{ marginBottom: '1rem', color: 'var(--gray-600)' }}>
+            <div className="mb-4 text-gray-600 animate-fade-in">
               Showing {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
             </div>
-            <div className="grid grid-3">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} {...product} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product, index) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <AnimatedProductCard {...product} />
+                </div>
               ))}
             </div>
           </>
