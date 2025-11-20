@@ -3,6 +3,7 @@ import { executeQuery } from '@/lib/db';
 import { PRODUCT_QUERIES } from '@/lib/queries';
 import { HTTP_STATUS, API_MESSAGES } from '@/lib/constants';
 import { createSuccessResponse, createErrorResponse, validateRequired, parseNumber, parseIntSafe } from '@/lib/utils';
+import { generateSlug, generateUniqueSlug } from '@/lib/slug-utils';
 
 // GET product by ID
 export async function GET(
@@ -52,11 +53,38 @@ export async function PUT(
       return createErrorResponse('Price must be greater than 0', HTTP_STATUS.BAD_REQUEST);
     }
 
-    // Update product
-    const [, updateError] = await executeQuery(
-      PRODUCT_QUERIES.UPDATE,
-      [name, description || '', parsedPrice, parsedStock, params.id]
-    );
+    // Try to update with slug, fallback to without slug if column doesn't exist
+    let updateError;
+    try {
+      const [currentProduct]: any = await executeQuery(PRODUCT_QUERIES.SELECT_BY_ID, [params.id]);
+      let slug = currentProduct[0]?.slug;
+      
+      // Regenerate slug if name changed
+      if (currentProduct[0]?.name !== name) {
+        const baseSlug = generateSlug(name);
+        const [existingSlugsData, slugsError]: any = await executeQuery(PRODUCT_QUERIES.SELECT_SLUGS);
+        const existingSlugs = slugsError ? [] : existingSlugsData
+          .map((row: any) => row.slug)
+          .filter((s: string) => s !== slug); // Exclude current product's slug
+        slug = generateUniqueSlug(baseSlug, existingSlugs);
+      }
+
+      // Update product with slug
+      [, updateError] = await executeQuery(
+        PRODUCT_QUERIES.UPDATE,
+        [name, slug, description || '', parsedPrice, parsedStock, params.id]
+      );
+    } catch (slugError: any) {
+      // If slug column doesn't exist, update without slug (backward compatibility)
+      if (slugError.code === 'ER_BAD_FIELD_ERROR') {
+        [, updateError] = await executeQuery(
+          `UPDATE products SET name = ?, description = ?, price = ?, stock = ? WHERE id = ?`,
+          [name, description || '', parsedPrice, parsedStock, params.id]
+        );
+      } else {
+        throw slugError;
+      }
+    }
     
     if (updateError) {
       return createErrorResponse(updateError.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);

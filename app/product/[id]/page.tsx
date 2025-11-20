@@ -8,6 +8,11 @@ import { API_ENDPOINTS } from '@/lib/client-constants';
 import Button from '@/components/ui/Button';
 import AnimatedProductCard from '@/components/AnimatedProductCard';
 import { getProductImage, getProductImageGallery } from '@/lib/product-images';
+import ProductSchema from '@/components/SEO/ProductSchema';
+import BreadcrumbSchema from '@/components/SEO/BreadcrumbSchema';
+import FAQSchema from '@/components/SEO/FAQSchema';
+import ReviewSchema from '@/components/SEO/ReviewSchema';
+import { getProductUrl } from '@/lib/product-url';
 import { 
   ArrowLeft, 
   ShoppingCart, 
@@ -39,6 +44,7 @@ import {
 interface Product {
   id: number;
   name: string;
+  slug?: string;
   description: string;
   price: number;
   stock: number;
@@ -80,7 +86,19 @@ export default function ProductDetailPage() {
 
   const fetchProduct = async () => {
     try {
-      const res = await fetch(`${API_ENDPOINTS.PRODUCTS}/${params.id}`);
+      // Try to fetch by slug first, fallback to ID for backward compatibility
+      const res = await fetch(`/api/products/slug/${params.id}`);
+      if (!res.ok) {
+        // Fallback to ID-based route
+        const idRes = await fetch(`${API_ENDPOINTS.PRODUCTS}/${params.id}`);
+        if (!idRes.ok) throw new Error('Product not found');
+        const idData = await idRes.json();
+        if (idData.success) {
+          setProduct(idData.data);
+          setLoading(false);
+          return;
+        }
+      }
       const data = await res.json();
       if (data.success) {
         setProduct(data.data);
@@ -100,7 +118,9 @@ export default function ProductDetailPage() {
       const res = await fetch(API_ENDPOINTS.PRODUCTS);
       const data = await res.json();
       if (data.success) {
-        const filtered = data.data.filter((p: Product) => p.id !== parseInt(params.id as string));
+        const filtered = data.data.filter((p: Product) => 
+          p.id !== product?.id && p.slug !== product?.slug
+        );
         setRelatedProducts(filtered.slice(0, 3));
       }
     } catch (error) {
@@ -230,9 +250,25 @@ export default function ProductDetailPage() {
     { name: 'Product Bundle B', price: 299.99, savings: 100 },
   ];
 
+  // Breadcrumb items
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Shop', url: '/shop' },
+    { name: product?.name || 'Product', url: product ? getProductUrl(product) : '#' },
+  ];
+
   return (
-    <div className="relative min-h-screen py-8 sm:py-12 md:py-16">
-      {/* Enhanced Background */}
+    <>
+      {product && (
+        <>
+          <ProductSchema product={product} />
+          <BreadcrumbSchema items={breadcrumbItems} />
+          <FAQSchema faqs={faqs} />
+          <ReviewSchema reviews={mockReviews} productName={product.name} />
+        </>
+      )}
+      <div className="relative min-h-screen py-8 sm:py-12 md:py-16">
+        {/* Enhanced Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 -z-10"></div>
       <div className="absolute inset-0 opacity-20" style={{
         backgroundImage: `radial-gradient(circle at 2px 2px, rgb(59 130 246 / 0.15) 1px, transparent 0)`,
@@ -979,6 +1015,7 @@ export default function ProductDetailPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

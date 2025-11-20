@@ -3,6 +3,7 @@ import { executeQuery } from '@/lib/db';
 import { PRODUCT_QUERIES } from '@/lib/queries';
 import { HTTP_STATUS, API_MESSAGES } from '@/lib/constants';
 import { createSuccessResponse, createErrorResponse, validateRequired, parseNumber, parseIntSafe } from '@/lib/utils';
+import { generateSlug, generateUniqueSlug } from '@/lib/slug-utils';
 
 // GET all products
 export async function GET() {
@@ -42,11 +43,30 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('Price must be greater than 0', HTTP_STATUS.BAD_REQUEST);
     }
 
-    // Insert product
-    const [result, insertError]: any = await executeQuery(
-      PRODUCT_QUERIES.INSERT,
-      [name, description || '', parsedPrice, parsedStock]
-    );
+    // Try to generate slug and insert with slug
+    let result, insertError;
+    try {
+      const baseSlug = generateSlug(name);
+      const [existingSlugsData, slugsError]: any = await executeQuery(PRODUCT_QUERIES.SELECT_SLUGS);
+      const existingSlugs = slugsError ? [] : existingSlugsData.map((row: any) => row.slug);
+      const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs);
+
+      // Insert product with slug
+      [result, insertError] = await executeQuery(
+        PRODUCT_QUERIES.INSERT,
+        [name, uniqueSlug, description || '', parsedPrice, parsedStock]
+      );
+    } catch (slugError: any) {
+      // If slug column doesn't exist, insert without slug (backward compatibility)
+      if (slugError.code === 'ER_BAD_FIELD_ERROR') {
+        [result, insertError] = await executeQuery(
+          `INSERT INTO products (name, description, price, stock) VALUES (?, ?, ?, ?)`,
+          [name, description || '', parsedPrice, parsedStock]
+        );
+      } else {
+        throw slugError;
+      }
+    }
     
     if (insertError) {
       return createErrorResponse(insertError.message, HTTP_STATUS.INTERNAL_SERVER_ERROR);

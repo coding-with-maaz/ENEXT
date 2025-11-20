@@ -15,11 +15,13 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) UNIQUE NOT NULL,
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
   stock INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_slug (slug)
 );
 
 -- Orders table
@@ -50,8 +52,8 @@ INSERT INTO users (name, email) VALUES
   ('John Doe', 'john@example.com'),
   ('Jane Smith', 'jane@example.com');
 
-INSERT INTO products (name, description, price, stock) VALUES
-  ('Laptop', 'High-performance laptop', 999.99, 10),
-  ('Mouse', 'Wireless mouse', 29.99, 50),
-  ('Keyboard', 'Mechanical keyboard', 79.99, 30);
+INSERT INTO products (name, slug, description, price, stock) VALUES
+  ('Laptop', 'laptop', 'High-performance laptop', 999.99, 10),
+  ('Mouse', 'mouse', 'Wireless mouse', 29.99, 50),
+  ('Keyboard', 'keyboard', 'Mechanical keyboard', 79.99, 30);
 

@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, Check, Package, Sparkles, Star } from 'lucide-react';
 import { getProductImage } from '@/lib/product-images';
+import { getProductUrl } from '@/lib/product-url';
 
 interface AnimatedProductCardProps {
   id: number;
   name: string;
+  slug?: string;
   description: string;
   price: number | string;
   stock: number;
@@ -18,6 +20,7 @@ interface AnimatedProductCardProps {
 export default function AnimatedProductCard({
   id,
   name,
+  slug,
   description,
   price,
   stock,
@@ -54,7 +57,7 @@ export default function AnimatedProductCard({
         {/* Corner accent */}
         <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-500 rounded-bl-full pointer-events-none z-10"></div>
         
-        <Link href={`/product/${id}`} className="flex flex-col h-full">
+        <Link href={getProductUrl({ id, slug })} className="flex flex-col h-full">
           {/* Image Section */}
           <div className="relative w-full h-56 sm:h-64 md:h-72 bg-gradient-to-br from-gray-50 via-gray-100 to-blue-50 overflow-hidden">
             {/* Decorative gradient overlay */}

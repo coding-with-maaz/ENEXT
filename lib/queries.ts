@@ -13,9 +13,11 @@ export const USER_QUERIES = {
 export const PRODUCT_QUERIES = {
   SELECT_ALL: `SELECT * FROM ${TABLES.PRODUCTS} ORDER BY created_at DESC`,
   SELECT_BY_ID: `SELECT * FROM ${TABLES.PRODUCTS} WHERE id = ?`,
+  SELECT_BY_SLUG: `SELECT * FROM ${TABLES.PRODUCTS} WHERE slug = ?`,
   SELECT_PRICE: `SELECT price FROM ${TABLES.PRODUCTS} WHERE id = ?`,
-  INSERT: `INSERT INTO ${TABLES.PRODUCTS} (name, description, price, stock) VALUES (?, ?, ?, ?)`,
-  UPDATE: `UPDATE ${TABLES.PRODUCTS} SET name = ?, description = ?, price = ?, stock = ? WHERE id = ?`,
+  SELECT_SLUGS: `SELECT slug FROM ${TABLES.PRODUCTS}`,
+  INSERT: `INSERT INTO ${TABLES.PRODUCTS} (name, slug, description, price, stock) VALUES (?, ?, ?, ?, ?)`,
+  UPDATE: `UPDATE ${TABLES.PRODUCTS} SET name = ?, slug = ?, description = ?, price = ?, stock = ? WHERE id = ?`,
   DELETE: `DELETE FROM ${TABLES.PRODUCTS} WHERE id = ?`,
 } as const;
 
