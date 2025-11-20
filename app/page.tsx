@@ -30,12 +30,19 @@ export default function Home() {
     try {
       const res = await fetch(API_ENDPOINTS.PRODUCTS);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data && data.data.length > 0) {
         // Get first 6 products as featured
         setFeaturedProducts(data.data.slice(0, 6));
+      } else {
+        // Fallback to mock data
+        const { getMockProducts } = await import('@/lib/mock-data');
+        setFeaturedProducts(getMockProducts().slice(0, 6));
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching products, using mock data:', error);
+      // Fallback to mock data
+      const { getMockProducts } = await import('@/lib/mock-data');
+      setFeaturedProducts(getMockProducts().slice(0, 6));
     } finally {
       setLoading(false);
     }

@@ -29,11 +29,18 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch(API_ENDPOINTS.USERS);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data && data.data.length > 0) {
         setUsers(data.data);
+      } else {
+        // Fallback to mock data
+        const { getMockUsers } = await import('@/lib/mock-data');
+        setUsers(getMockUsers());
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching users, using mock data:', error);
+      // Fallback to mock data
+      const { getMockUsers } = await import('@/lib/mock-data');
+      setUsers(getMockUsers());
     } finally {
       setLoading(false);
     }

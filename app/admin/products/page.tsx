@@ -34,11 +34,18 @@ export default function AdminProductsPage() {
     try {
       const res = await fetch(API_ENDPOINTS.PRODUCTS);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data && data.data.length > 0) {
         setProducts(data.data);
+      } else {
+        // Fallback to mock data
+        const { getMockProducts } = await import('@/lib/mock-data');
+        setProducts(getMockProducts());
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching products, using mock data:', error);
+      // Fallback to mock data
+      const { getMockProducts } = await import('@/lib/mock-data');
+      setProducts(getMockProducts());
     } finally {
       setLoading(false);
     }

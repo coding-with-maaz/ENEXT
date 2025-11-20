@@ -4,6 +4,7 @@ import Providers from './providers'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import OrganizationSchema from '@/components/SEO/OrganizationSchema'
 import WebSiteSchema from '@/components/SEO/WebSiteSchema'
+import MockDataBanner from '@/components/MockDataBanner'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://enext-store.com'
 const siteName = 'ENEXT'
@@ -95,6 +96,7 @@ export default function RootLayout({
           <ConditionalLayout>
             {children}
           </ConditionalLayout>
+          <MockDataBanner />
         </Providers>
       </body>
     </html>

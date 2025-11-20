@@ -93,21 +93,39 @@ export default function ProductDetailPage() {
         const idRes = await fetch(`${API_ENDPOINTS.PRODUCTS}/${params.id}`);
         if (!idRes.ok) throw new Error('Product not found');
         const idData = await idRes.json();
-        if (idData.success) {
+        if (idData.success && idData.data) {
           setProduct(idData.data);
           setLoading(false);
           return;
         }
       }
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data) {
         setProduct(data.data);
       } else {
-        router.push('/shop');
+        // Fallback to mock data
+        const { getMockProduct } = await import('@/lib/mock-data');
+        const mockProduct = getMockProduct(params.id as string);
+        if (mockProduct) {
+          setProduct(mockProduct);
+        } else {
+          router.push('/shop');
+        }
       }
     } catch (error) {
-      console.error('Error fetching product:', error);
-      router.push('/shop');
+      console.error('Error fetching product, trying mock data:', error);
+      // Fallback to mock data
+      try {
+        const { getMockProduct } = await import('@/lib/mock-data');
+        const mockProduct = getMockProduct(params.id as string);
+        if (mockProduct) {
+          setProduct(mockProduct);
+        } else {
+          router.push('/shop');
+        }
+      } catch (mockError) {
+        router.push('/shop');
+      }
     } finally {
       setLoading(false);
     }
@@ -117,14 +135,27 @@ export default function ProductDetailPage() {
     try {
       const res = await fetch(API_ENDPOINTS.PRODUCTS);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data && data.data.length > 0) {
         const filtered = data.data.filter((p: Product) => 
           p.id !== product?.id && p.slug !== product?.slug
         );
         setRelatedProducts(filtered.slice(0, 3));
+      } else {
+        // Fallback to mock data
+        const { getMockProducts } = await import('@/lib/mock-data');
+        const mockProducts = getMockProducts().filter((p: Product) => 
+          p.id !== product?.id && p.slug !== product?.slug
+        );
+        setRelatedProducts(mockProducts.slice(0, 3));
       }
     } catch (error) {
-      console.error('Error fetching related products:', error);
+      console.error('Error fetching related products, using mock data:', error);
+      // Fallback to mock data
+      const { getMockProducts } = await import('@/lib/mock-data');
+      const mockProducts = getMockProducts().filter((p: Product) => 
+        p.id !== product?.id && p.slug !== product?.slug
+      );
+      setRelatedProducts(mockProducts.slice(0, 3));
     }
   };
 

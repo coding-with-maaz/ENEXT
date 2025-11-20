@@ -39,11 +39,18 @@ export default function AdminOrdersPage() {
     try {
       const res = await fetch(API_ENDPOINTS.ORDERS);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data && data.data.length > 0) {
         setOrders(data.data);
+      } else {
+        // Fallback to mock data
+        const { getMockOrders } = await import('@/lib/mock-data');
+        setOrders(getMockOrders());
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Error fetching orders, using mock data:', error);
+      // Fallback to mock data
+      const { getMockOrders } = await import('@/lib/mock-data');
+      setOrders(getMockOrders());
     } finally {
       setLoading(false);
     }

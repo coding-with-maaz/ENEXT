@@ -39,14 +39,27 @@ export default function ShopPage() {
     try {
       const res = await fetch(API_ENDPOINTS.PRODUCTS);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data && data.data.length > 0) {
         setProducts(data.data);
         // Set max price from products
         const maxPrice = Math.max(...data.data.map((p: Product) => p.price), 1000);
         setPriceRange([0, maxPrice]);
+      } else {
+        // Fallback to mock data
+        const { getMockProducts } = await import('@/lib/mock-data');
+        const mockProducts = getMockProducts();
+        setProducts(mockProducts);
+        const maxPrice = Math.max(...mockProducts.map((p: Product) => p.price), 1000);
+        setPriceRange([0, maxPrice]);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching products, using mock data:', error);
+      // Fallback to mock data
+      const { getMockProducts } = await import('@/lib/mock-data');
+      const mockProducts = getMockProducts();
+      setProducts(mockProducts);
+      const maxPrice = Math.max(...mockProducts.map((p: Product) => p.price), 1000);
+      setPriceRange([0, maxPrice]);
     } finally {
       setLoading(false);
     }
