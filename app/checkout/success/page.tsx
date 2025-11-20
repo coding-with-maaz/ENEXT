@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
@@ -37,25 +37,11 @@ interface Order {
   shipping_info?: any;
 }
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (orderId) {
-      fetchOrder();
-    } else {
-      // Try to get from sessionStorage
-      const lastOrderId = sessionStorage.getItem('lastOrderId');
-      if (lastOrderId) {
-        fetchOrder(lastOrderId);
-      } else {
-        setLoading(false);
-      }
-    }
-  }, [orderId]);
 
   const fetchOrder = async (id?: string) => {
     try {
@@ -73,6 +59,21 @@ export default function CheckoutSuccessPage() {
     }
   };
 
+  useEffect(() => {
+    if (orderId) {
+      fetchOrder();
+    } else {
+      // Try to get from sessionStorage
+      const lastOrderId = sessionStorage.getItem('lastOrderId');
+      if (lastOrderId) {
+        fetchOrder(lastOrderId);
+      } else {
+        setLoading(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
+
   if (loading) {
     return (
       <div className="relative min-h-screen py-16 sm:py-20 md:py-24 flex items-center justify-center">
@@ -84,6 +85,12 @@ export default function CheckoutSuccessPage() {
     );
   }
 
+  return (
+    <CheckoutSuccessUI order={order} />
+  );
+}
+
+function CheckoutSuccessUI({ order }: { order: Order | null }) {
   return (
     <div className="relative min-h-screen py-12 sm:py-16 md:py-20">
       {/* Background */}
@@ -293,5 +300,22 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="relative min-h-screen py-16 sm:py-20 md:py-24 flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-4"></div>
+            <p className="text-gray-600 text-lg font-medium">Loading order details...</p>
+          </div>
+        </div>
+      }
+    >
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }
