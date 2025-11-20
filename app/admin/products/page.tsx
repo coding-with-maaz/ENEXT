@@ -5,7 +5,7 @@ import DataTable from '@/components/admin/DataTable';
 import FormModal from '@/components/admin/FormModal';
 import StatusBadge from '@/components/admin/StatusBadge';
 import Button from '@/components/ui/Button';
-import { Plus, Package, AlertTriangle } from 'lucide-react';
+import { Plus, Package, AlertTriangle, Copy } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/client-constants';
 import { getProductImage } from '@/lib/product-images';
 import Image from 'next/image';
@@ -24,6 +24,7 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [duplicatingProduct, setDuplicatingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -65,6 +66,7 @@ export default function AdminProductsPage() {
         fetchProducts();
         setIsModalOpen(false);
         setEditingProduct(null);
+        setDuplicatingProduct(null);
       } else {
         alert(data.message || 'Failed to save product');
       }
@@ -76,6 +78,17 @@ export default function AdminProductsPage() {
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleDuplicate = (product: Product) => {
+    // Create a copy of the product with "Copy of" prefix
+    const duplicatedProduct: Product = {
+      ...product,
+      name: `Copy of ${product.name}`,
+    };
+    setDuplicatingProduct(duplicatedProduct);
+    setEditingProduct(null); // Set to null so it creates a new product
     setIsModalOpen(true);
   };
 
@@ -103,6 +116,7 @@ export default function AdminProductsPage() {
 
   const handleAddNew = () => {
     setEditingProduct(null);
+    setDuplicatingProduct(null);
     setIsModalOpen(true);
   };
 
@@ -282,6 +296,15 @@ export default function AdminProductsPage() {
         loading={loading}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        actions={(product: Product) => (
+          <button
+            onClick={() => handleDuplicate(product)}
+            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+            title="Duplicate Product"
+          >
+            <Copy className="w-4 h-4" />
+          </button>
+        )}
         searchPlaceholder="Search products by name or description..."
         emptyMessage="No products found. Add your first product to get started!"
       />
@@ -292,14 +315,20 @@ export default function AdminProductsPage() {
         onClose={() => {
           setIsModalOpen(false);
           setEditingProduct(null);
+          setDuplicatingProduct(null);
         }}
         onSubmit={handleSubmit}
-        title={editingProduct ? 'Edit Product' : 'Add New Product'}
+        title={editingProduct ? 'Edit Product' : duplicatingProduct ? 'Duplicate Product' : 'Add New Product'}
         fields={formFields}
         initialData={editingProduct ? {
           ...editingProduct,
           price: editingProduct.price.toString(),
           stock: editingProduct.stock.toString(),
+        } : duplicatingProduct ? {
+          name: duplicatingProduct.name,
+          description: duplicatingProduct.description || '',
+          price: duplicatingProduct.price.toString(),
+          stock: duplicatingProduct.stock.toString(),
         } : {}}
         submitLabel={editingProduct ? 'Update Product' : 'Create Product'}
       />
