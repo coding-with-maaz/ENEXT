@@ -54,13 +54,15 @@ export default function OrdersPage() {
       } else {
         // Fallback to mock data
         const { getMockOrders } = await import('@/lib/mock-data');
-        setOrders(getMockOrders());
+        const mockOrders = getMockOrders();
+        setOrders(mockOrders as Order[]);
       }
     } catch (error: any) {
       console.error('Error fetching orders, using mock data:', error);
       // Fallback to mock data
       const { getMockOrders } = await import('@/lib/mock-data');
-      setOrders(getMockOrders());
+      const mockOrders = getMockOrders();
+      setOrders(mockOrders as Order[]);
     } finally {
       setLoading(false);
     }

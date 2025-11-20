@@ -60,9 +60,9 @@ export default function AdminDashboard() {
       // Fallback to mock data if no data available
       if (users.length === 0 || products.length === 0 || orders.length === 0) {
         const { getMockUsers, getMockProducts, getMockOrders } = await import('@/lib/mock-data');
-        if (users.length === 0) users = getMockUsers();
-        if (products.length === 0) products = getMockProducts();
-        if (orders.length === 0) orders = getMockOrders();
+        if (users.length === 0) users = getMockUsers() as any[];
+        if (products.length === 0) products = getMockProducts() as any[];
+        if (orders.length === 0) orders = getMockOrders() as any[];
       }
 
       // Calculate revenue

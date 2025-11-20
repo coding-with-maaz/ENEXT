@@ -19,6 +19,14 @@ export interface MockUser {
   created_at: string;
 }
 
+export interface MockOrderItem {
+  id: number;
+  product_id: number;
+  product_name: string;
+  quantity: number;
+  price: number;
+}
+
 export interface MockOrder {
   id: number;
   user_id: number;
@@ -27,7 +35,7 @@ export interface MockOrder {
   created_at: string;
   user_name?: string;
   user_email?: string;
-  items?: any[];
+  items: MockOrderItem[];
 }
 
 export const MOCK_PRODUCTS: MockProduct[] = [
@@ -136,7 +144,7 @@ export const MOCK_ORDERS: MockOrder[] = [
     user_name: 'John Doe',
     user_email: 'john.doe@example.com',
     items: [
-      { product_id: 1, product_name: 'Premium Laptop', quantity: 1, price: 1299.99 },
+      { id: 1, product_id: 1, product_name: 'Premium Laptop', quantity: 1, price: 1299.99 },
     ],
   },
   {
@@ -148,8 +156,8 @@ export const MOCK_ORDERS: MockOrder[] = [
     user_name: 'Jane Smith',
     user_email: 'jane.smith@example.com',
     items: [
-      { product_id: 2, product_name: 'Wireless Mouse', quantity: 2, price: 29.99 },
-      { product_id: 3, product_name: 'Mechanical Keyboard', quantity: 1, price: 89.99 },
+      { id: 2, product_id: 2, product_name: 'Wireless Mouse', quantity: 2, price: 29.99 },
+      { id: 3, product_id: 3, product_name: 'Mechanical Keyboard', quantity: 1, price: 89.99 },
     ],
   },
   {
@@ -161,7 +169,7 @@ export const MOCK_ORDERS: MockOrder[] = [
     user_name: 'John Doe',
     user_email: 'john.doe@example.com',
     items: [
-      { product_id: 4, product_name: '4K Monitor', quantity: 1, price: 399.99 },
+      { id: 4, product_id: 4, product_name: '4K Monitor', quantity: 1, price: 399.99 },
     ],
   },
 ];

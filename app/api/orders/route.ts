@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     // Check for validation errors
     const validationError = productValidations.find((v: any) => v.error);
-    if (validationError) {
+    if (validationError && validationError.error) {
       return createErrorResponse(validationError.error, HTTP_STATUS.BAD_REQUEST);
     }
 

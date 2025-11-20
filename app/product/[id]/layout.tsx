@@ -42,28 +42,31 @@ export async function generateMetadata({
     const productImage = getProductImage(product.name, product.id);
     const productUrl = getProductUrl(product);
 
+    const productDescription = product.description || `Buy ${product.name} at the best price. High quality product with fast shipping.`;
+    const ogDescription = product.description || `Buy ${product.name} at the best price.`;
+
     return {
       title: `${product.name} | ENEXT`,
-      description: product.description || `Buy ${product.name} at the best price. ${product.description || 'High quality product with fast shipping.'}`,
+      description: productDescription,
       keywords: [product.name, 'product', 'buy', 'online shopping', 'e-commerce'],
       openGraph: {
         title: `${product.name} | ENEXT`,
-        description: product.description || `Buy ${product.name} at the best price.`,
-        type: 'product',
+        description: ogDescription,
+        type: 'website',
         url: `${siteUrl}${productUrl}`,
         images: [
           {
             url: productImage,
             width: 1200,
             height: 630,
-            alt: product.name,
+            alt: product.name || 'Product',
           },
         ],
       },
       twitter: {
         card: 'summary_large_image',
         title: `${product.name} | ENEXT`,
-        description: product.description || `Buy ${product.name} at the best price.`,
+        description: ogDescription,
         images: [productImage],
       },
       alternates: {
