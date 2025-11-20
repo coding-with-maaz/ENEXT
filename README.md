@@ -14,7 +14,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-success?style=for-the-badge)](https://github.com/coding-with-maaz/ENEXT)
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Available-brightgreen?style=for-the-badge&logo=vercel)](https://your-demo-url.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Available-brightgreen?style=for-the-badge&logo=vercel)](https://enext-kohl.vercel.app/)
 [![Documentation](https://img.shields.io/badge/Documentation-Available-blue?style=for-the-badge)](https://github.com/coding-with-maaz/ENEXT#readme)
 
 </div>
