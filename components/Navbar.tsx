@@ -72,6 +72,18 @@ export default function Navbar() {
               Shop
             </Link>
             <Link
+              href="/categories"
+              style={{
+                color: 'var(--gray-700)',
+                fontWeight: 500,
+                transition: 'var(--transition)',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--gray-700)')}
+            >
+              Categories
+            </Link>
+            <Link
               href="/about"
               style={{
                 color: 'var(--gray-700)',
@@ -183,6 +195,7 @@ export default function Navbar() {
             className="mobile-menu"
           >
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
+            <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)}>Categories</Link>
             <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
             <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)}>

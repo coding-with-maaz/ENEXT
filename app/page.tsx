@@ -12,9 +12,13 @@ import { API_ENDPOINTS } from '@/lib/client-constants';
 interface Product {
   id: number;
   name: string;
+  slug?: string;
+  category?: string;
   description: string;
+  short_description?: string;
   price: number;
   stock: number;
+  image_url?: string;
   created_at: string;
 }
 
@@ -180,7 +184,17 @@ export default function Home() {
                     className="animate-fade-in transform hover:scale-[1.02] transition-transform duration-300"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <AnimatedProductCard {...product} />
+                    <AnimatedProductCard
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      category={product.category}
+                      description={product.description}
+                      short_description={product.short_description}
+                      price={product.price}
+                      stock={product.stock}
+                      image_url={product.image_url}
+                    />
                   </div>
                 ))}
               </div>

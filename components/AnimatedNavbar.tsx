@@ -44,7 +44,7 @@ export default function AnimatedNavbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {['Shop', 'About', 'Contact'].map((item) => (
+            {['Shop', 'Categories', 'About', 'Contact'].map((item) => (
               <Link
                 key={item}
                 href={`/${item.toLowerCase()}`}
@@ -112,7 +112,7 @@ export default function AnimatedNavbar() {
           }`}
         >
           <div className="py-4 space-y-3 border-t border-gray-200">
-            {['Shop', 'About', 'Contact'].map((item) => (
+            {['Shop', 'Categories', 'About', 'Contact'].map((item) => (
               <Link
                 key={item}
                 href={`/${item.toLowerCase()}`}

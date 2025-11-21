@@ -11,6 +11,7 @@ interface AnimatedProductCardProps {
   id: number;
   name: string;
   slug?: string;
+  category?: string;
   description: string;
   short_description?: string;
   price: number | string;
@@ -23,6 +24,7 @@ export default function AnimatedProductCard({
   id,
   name,
   slug,
+  category,
   description,
   short_description,
   price,
@@ -121,7 +123,7 @@ export default function AnimatedProductCard({
             {/* Category/Tag */}
             <div className="mb-3 flex items-center gap-2">
               <span className="inline-block px-3 py-1 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100 shadow-sm">
-                Premium
+                {category || 'Premium'}
               </span>
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (

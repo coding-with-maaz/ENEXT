@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import AnimatedProductCard from '@/components/AnimatedProductCard';
 import { ProductCardSkeleton } from '@/components/ui/Loading';
 import Button from '@/components/ui/Button';
@@ -35,6 +36,9 @@ export default function ShopPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     fetchProducts();
@@ -42,7 +46,15 @@ export default function ShopPage() {
 
   useEffect(() => {
     filterAndSortProducts();
-  }, [products, searchTerm, sortBy, priceRange, inStockOnly]);
+  }, [products, searchTerm, sortBy, priceRange, inStockOnly, selectedCategory]);
+
+  // Initialize category from URL (?category=...)
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [searchParams]);
 
   const fetchProducts = async () => {
     try {
@@ -86,6 +98,14 @@ export default function ShopPage() {
       );
     }
 
+    // Filter by category
+    if (selectedCategory) {
+      filtered = filtered.filter((product) => {
+        const cat = product.category?.trim() || 'Uncategorized';
+        return cat.toLowerCase() === selectedCategory.toLowerCase();
+      });
+    }
+
     // Filter by price range
     filtered = filtered.filter(
       (product) => product.price >= priceRange[0] && product.price <= priceRange[1]
@@ -113,13 +133,24 @@ export default function ShopPage() {
   };
 
   const maxPrice = Math.max(...products.map((p) => p.price), 1000);
-  const hasActiveFilters = searchTerm || priceRange[0] > 0 || priceRange[1] < maxPrice || inStockOnly;
+  const hasActiveFilters =
+    searchTerm || priceRange[0] > 0 || priceRange[1] < maxPrice || inStockOnly || selectedCategory;
 
   const clearFilters = () => {
     setSearchTerm('');
     setPriceRange([0, maxPrice]);
     setInStockOnly(false);
+    setSelectedCategory(null);
   };
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      const cat = p.category && p.category.trim() ? p.category.trim() : 'Uncategorized';
+      set.add(cat);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [products]);
 
   return (
     <div className="relative min-h-screen py-8 sm:py-12 md:py-16">
@@ -269,6 +300,14 @@ export default function ShopPage() {
                     </button>
                   </span>
                 )}
+                {selectedCategory && (
+                  <span className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Category: {selectedCategory}
+                    <button onClick={() => setSelectedCategory(null)} className="hover:bg-orange-200 rounded-full p-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
                 <button
                   onClick={clearFilters}
                   className="ml-auto px-3 py-1.5 text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
@@ -318,6 +357,41 @@ export default function ShopPage() {
                       </span>
                     </label>
                   </div>
+
+                  {/* Category Filter */}
+                  {categories.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-3">Category</label>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCategory(null)}
+                          className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-300 ${
+                            !selectedCategory
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                              : 'bg-white text-gray-700 border-gray-200 hover:border-blue-500'
+                          }`}
+                        >
+                          All
+                        </button>
+                        {categories.map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-300 ${
+                              selectedCategory &&
+                              selectedCategory.toLowerCase() === cat.toLowerCase()
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                : 'bg-white text-gray-700 border-gray-200 hover:border-blue-500'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -378,6 +452,7 @@ export default function ShopPage() {
                   id={product.id}
                   name={product.name}
                   slug={product.slug}
+                  category={product.category}
                   description={product.description}
                   short_description={product.short_description}
                   price={product.price}

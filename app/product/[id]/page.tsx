@@ -1025,6 +1025,7 @@ export default function ProductDetailPage() {
                     id={product.id}
                     name={product.name}
                     slug={product.slug}
+                    category={product.category}
                     description={product.description}
                     short_description={product.short_description}
                     price={product.price}
