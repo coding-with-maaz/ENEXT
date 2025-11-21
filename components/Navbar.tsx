@@ -33,9 +33,9 @@ export default function Navbar() {
       }}
     >
       <div className="container" style={{ padding: '1rem 1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Link href="/" className="flex items-center gap-2">
             <div
               style={{
                 width: '40px',
@@ -58,7 +58,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <div className="hidden md:flex items-center gap-8">
             <Link
               href="/shop"
               style={{
@@ -157,18 +157,17 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button (desktop hidden) */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               style={{
-                display: 'none',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
                 padding: '0.5rem',
                 color: 'var(--gray-700)',
               }}
-              className="mobile-menu-btn"
+              className="mobile-menu-btn md:hidden"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 {isMobileMenuOpen ? (
@@ -181,7 +180,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu (shown on small screens when open) */}
         {isMobileMenuOpen && (
           <div
             style={{
@@ -192,7 +191,7 @@ export default function Navbar() {
               flexDirection: 'column',
               gap: '1rem',
             }}
-            className="mobile-menu"
+            className="mobile-menu md:hidden"
           >
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
             <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)}>Categories</Link>
