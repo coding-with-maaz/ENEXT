@@ -45,9 +45,19 @@ interface Product {
   id: number;
   name: string;
   slug?: string;
+  category?: string;
+  brand?: string;
+  sku?: string;
   description: string;
+  short_description?: string;
   price: number;
   stock: number;
+  is_featured?: number | boolean;
+  is_bestseller?: number | boolean;
+  image_url?: string;
+  tags?: string;
+  meta_title?: string;
+  meta_description?: string;
   created_at: string;
 }
 
@@ -213,12 +223,12 @@ export default function ProductDetailPage() {
   ];
 
   const specifications = [
+    { label: 'Category', value: product.category || 'Premium Product' },
+    { label: 'Brand', value: product.brand || 'ENEXT Premium' },
+    { label: 'SKU', value: product.sku || `PRD-${product.id.toString().padStart(6, '0')}` },
     { label: 'Material', value: 'Premium Quality' },
     { label: 'Dimensions', value: '10 x 8 x 5 inches' },
     { label: 'Weight', value: '2.5 lbs' },
-    { label: 'Color', value: 'Multiple Options' },
-    { label: 'Brand', value: 'ENEXT Premium' },
-    { label: 'SKU', value: `PRD-${product.id.toString().padStart(6, '0')}` },
   ];
 
   const colors = [
@@ -438,7 +448,7 @@ export default function ProductDetailPage() {
             {/* Category & Rating */}
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <span className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 rounded-full text-sm font-bold border border-blue-100">
-                Premium Product
+                {product.category || 'Premium Product'}
               </span>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
@@ -530,7 +540,7 @@ export default function ProductDetailPage() {
             <div className="mb-8 p-6 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
               <h3 className="text-lg font-bold text-gray-900 mb-3">Description</h3>
               <p className="text-gray-700 leading-relaxed text-base">
-                {product.description || 'This premium product features exceptional quality and design. Crafted with attention to detail, it combines style and functionality to deliver an outstanding user experience. Perfect for those who appreciate quality and innovation.'}
+                {product.description || product.short_description || 'This premium product features exceptional quality and design. Crafted with attention to detail, it combines style and functionality to deliver an outstanding user experience. Perfect for those who appreciate quality and innovation.'}
               </p>
             </div>
 
@@ -1011,7 +1021,16 @@ export default function ProductDetailPage() {
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <AnimatedProductCard {...product} />
+                  <AnimatedProductCard
+                    id={product.id}
+                    name={product.name}
+                    slug={product.slug}
+                    description={product.description}
+                    short_description={product.short_description}
+                    price={product.price}
+                    stock={product.stock}
+                    image_url={product.image_url}
+                  />
                 </div>
               ))}
             </div>

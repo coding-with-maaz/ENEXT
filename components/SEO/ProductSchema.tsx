@@ -9,6 +9,13 @@ interface Product {
   description: string;
   price: number;
   stock: number;
+  category?: string;
+  brand?: string;
+  sku?: string;
+  short_description?: string;
+  image_url?: string;
+  meta_title?: string;
+  meta_description?: string;
 }
 
 interface ProductSchemaProps {
@@ -16,18 +23,18 @@ interface ProductSchemaProps {
 }
 
 export default function ProductSchema({ product }: ProductSchemaProps) {
-  const imageUrl = getProductImage(product.name, product.id);
+  const imageUrl = product.image_url || getProductImage(product.name, product.id);
   
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: product.name,
-    description: product.description || product.name,
+    name: product.meta_title || product.name,
+    description: product.meta_description || product.short_description || product.description || product.name,
     image: imageUrl,
-    sku: `PROD-${product.id}`,
+    sku: product.sku || `PROD-${product.id}`,
     brand: {
       '@type': 'Brand',
-      name: 'ENEXT',
+      name: product.brand || 'ENEXT',
     },
     offers: {
       '@type': 'Offer',

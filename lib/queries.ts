@@ -16,8 +16,32 @@ export const PRODUCT_QUERIES = {
   SELECT_BY_SLUG: `SELECT * FROM ${TABLES.PRODUCTS} WHERE slug = ?`,
   SELECT_PRICE: `SELECT price FROM ${TABLES.PRODUCTS} WHERE id = ?`,
   SELECT_SLUGS: `SELECT slug FROM ${TABLES.PRODUCTS}`,
-  INSERT: `INSERT INTO ${TABLES.PRODUCTS} (name, slug, description, price, stock) VALUES (?, ?, ?, ?, ?)`,
-  UPDATE: `UPDATE ${TABLES.PRODUCTS} SET name = ?, slug = ?, description = ?, price = ?, stock = ? WHERE id = ?`,
+  INSERT: `
+    INSERT INTO ${TABLES.PRODUCTS} 
+      (name, slug, category, brand, sku, description, short_description, price, stock, is_featured, is_bestseller, image_url, tags, meta_title, meta_description) 
+    VALUES 
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `,
+  UPDATE: `
+    UPDATE ${TABLES.PRODUCTS} 
+    SET 
+      name = ?, 
+      slug = ?, 
+      category = ?, 
+      brand = ?, 
+      sku = ?, 
+      description = ?, 
+      short_description = ?, 
+      price = ?, 
+      stock = ?, 
+      is_featured = ?, 
+      is_bestseller = ?, 
+      image_url = ?, 
+      tags = ?, 
+      meta_title = ?, 
+      meta_description = ?
+    WHERE id = ?
+  `,
   DELETE: `DELETE FROM ${TABLES.PRODUCTS} WHERE id = ?`,
 } as const;
 

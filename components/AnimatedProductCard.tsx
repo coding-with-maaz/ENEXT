@@ -12,9 +12,11 @@ interface AnimatedProductCardProps {
   name: string;
   slug?: string;
   description: string;
+  short_description?: string;
   price: number | string;
   stock: number;
   image?: string;
+  image_url?: string;
 }
 
 export default function AnimatedProductCard({
@@ -22,9 +24,11 @@ export default function AnimatedProductCard({
   name,
   slug,
   description,
+  short_description,
   price,
   stock,
   image,
+  image_url,
 }: AnimatedProductCardProps) {
   const { addToCart } = useCart();
   const [isHovered, setIsHovered] = useState(false);
@@ -72,7 +76,7 @@ export default function AnimatedProductCard({
             </div>
             
             <img
-              src={image || getProductImage(name, id)}
+              src={image || image_url || getProductImage(name, id)}
               alt={name}
               className={`w-full h-full object-cover transition-all duration-700 ${
                 isHovered ? 'scale-110 rotate-1' : 'scale-100 rotate-0'
@@ -136,7 +140,7 @@ export default function AnimatedProductCard({
             
             {/* Description */}
             <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-1 leading-relaxed">
-              {description || 'Premium quality product with exceptional features and design.'}
+              {short_description || description || 'Premium quality product with exceptional features and design.'}
             </p>
 
             {/* Price and Action Section */}

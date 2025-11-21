@@ -13,9 +13,19 @@ import Image from 'next/image';
 interface Product {
   id: number;
   name: string;
+  category?: string;
+  brand?: string;
+  sku?: string;
   description: string;
+  short_description?: string;
   price: number;
   stock: number;
+  is_featured?: number | boolean;
+  is_bestseller?: number | boolean;
+  image_url?: string;
+  tags?: string;
+  meta_title?: string;
+  meta_description?: string;
   created_at: string;
 }
 
@@ -58,9 +68,14 @@ export default function AdminProductsPage() {
         : API_ENDPOINTS.PRODUCTS;
       const method = editingProduct ? 'PUT' : 'POST';
 
-      // Convert price and stock to numbers
+      // Normalize and convert values
       formData.price = parseFloat(formData.price);
       formData.stock = parseInt(formData.stock);
+      // Normalize featured/bestseller flags from select values
+      formData.isFeatured =
+        formData.isFeatured === 'yes' || formData.isFeatured === true ? true : false;
+      formData.isBestseller =
+        formData.isBestseller === 'yes' || formData.isBestseller === true ? true : false;
 
       const res = await fetch(url, {
         method,
@@ -137,11 +152,19 @@ export default function AdminProductsPage() {
       sortable: true,
     },
     {
+      key: 'category',
+      header: 'Category',
+      sortable: true,
+      render: (product: Product) => (
+        <span className="text-sm text-gray-700">{product.category || 'Uncategorized'}</span>
+      ),
+    },
+    {
       key: 'name',
       header: 'Product',
       sortable: true,
       render: (product: Product) => {
-        const imageUrl = getProductImage(product.name, product.id);
+        const imageUrl = product.image_url || getProductImage(product.name, product.id);
         return (
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden flex-shrink-0">
@@ -158,7 +181,7 @@ export default function AdminProductsPage() {
             <div>
               <span className="font-semibold text-gray-900 block">{product.name}</span>
               <span className="text-xs text-gray-500 line-clamp-1">
-                {product.description || 'No description'}
+                {product.short_description || product.description || 'No description'}
               </span>
             </div>
           </div>
@@ -218,11 +241,35 @@ export default function AdminProductsPage() {
       required: true,
     },
     {
+      name: 'short_description',
+      label: 'Short Description',
+      type: 'text' as const,
+      placeholder: 'One-line summary for cards and SEO',
+    },
+    {
       name: 'description',
       label: 'Description',
       type: 'textarea' as const,
       placeholder: 'Enter product description',
       rows: 4,
+    },
+    {
+      name: 'category',
+      label: 'Category',
+      type: 'text' as const,
+      placeholder: 'e.g. Electronics, Shoes',
+    },
+    {
+      name: 'brand',
+      label: 'Brand',
+      type: 'text' as const,
+      placeholder: 'Brand name',
+    },
+    {
+      name: 'sku',
+      label: 'SKU / Product Code',
+      type: 'text' as const,
+      placeholder: 'Unique product code',
     },
     {
       name: 'price',
@@ -237,6 +284,49 @@ export default function AdminProductsPage() {
       type: 'number' as const,
       placeholder: '0',
       required: true,
+    },
+    {
+      name: 'image_url',
+      label: 'Main Image URL',
+      type: 'text' as const,
+      placeholder: 'https://...',
+    },
+    {
+      name: 'tags',
+      label: 'Tags',
+      type: 'text' as const,
+      placeholder: 'Comma-separated keywords, e.g. laptop,electronics,work',
+    },
+    {
+      name: 'isFeatured',
+      label: 'Featured Product',
+      type: 'select' as const,
+      options: [
+        { value: 'no', label: 'No' },
+        { value: 'yes', label: 'Yes' },
+      ],
+    },
+    {
+      name: 'isBestseller',
+      label: 'Bestseller',
+      type: 'select' as const,
+      options: [
+        { value: 'no', label: 'No' },
+        { value: 'yes', label: 'Yes' },
+      ],
+    },
+    {
+      name: 'meta_title',
+      label: 'SEO Meta Title',
+      type: 'text' as const,
+      placeholder: 'Custom SEO title (optional)',
+    },
+    {
+      name: 'meta_description',
+      label: 'SEO Meta Description',
+      type: 'textarea' as const,
+      placeholder: 'Custom SEO meta description (optional)',
+      rows: 3,
     },
   ];
 
@@ -327,16 +417,32 @@ export default function AdminProductsPage() {
         onSubmit={handleSubmit}
         title={editingProduct ? 'Edit Product' : duplicatingProduct ? 'Duplicate Product' : 'Add New Product'}
         fields={formFields}
-        initialData={editingProduct ? {
-          ...editingProduct,
-          price: editingProduct.price.toString(),
-          stock: editingProduct.stock.toString(),
-        } : duplicatingProduct ? {
-          name: duplicatingProduct.name,
-          description: duplicatingProduct.description || '',
-          price: duplicatingProduct.price.toString(),
-          stock: duplicatingProduct.stock.toString(),
-        } : {}}
+        initialData={editingProduct
+          ? {
+              ...editingProduct,
+              price: editingProduct.price.toString(),
+              stock: editingProduct.stock.toString(),
+              isFeatured: editingProduct.is_featured ? 'yes' : 'no',
+              isBestseller: editingProduct.is_bestseller ? 'yes' : 'no',
+            }
+          : duplicatingProduct
+          ? {
+              name: duplicatingProduct.name,
+              short_description: duplicatingProduct.short_description || '',
+              description: duplicatingProduct.description || '',
+              category: duplicatingProduct.category || '',
+              brand: duplicatingProduct.brand || '',
+              sku: '',
+              price: duplicatingProduct.price.toString(),
+              stock: duplicatingProduct.stock.toString(),
+              image_url: duplicatingProduct.image_url || '',
+              tags: duplicatingProduct.tags || '',
+              isFeatured: duplicatingProduct.is_featured ? 'yes' : 'no',
+              isBestseller: duplicatingProduct.is_bestseller ? 'yes' : 'no',
+              meta_title: duplicatingProduct.meta_title || '',
+              meta_description: duplicatingProduct.meta_description || '',
+            }
+          : {}}
         submitLabel={editingProduct ? 'Update Product' : 'Create Product'}
       />
     </div>

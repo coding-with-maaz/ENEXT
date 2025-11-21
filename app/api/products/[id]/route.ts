@@ -34,7 +34,22 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { name, description, price, stock } = body;
+    const {
+      name,
+      description,
+      price,
+      stock,
+      category,
+      brand,
+      sku,
+      short_description,
+      image_url,
+      tags,
+      meta_title,
+      meta_description,
+      isFeatured,
+      isBestseller,
+    } = body;
 
     // Validate required fields
     const validation = validateRequired(body, ['name', 'price']);
@@ -48,6 +63,8 @@ export async function PUT(
     // Parse and validate numeric values
     const parsedPrice = parseNumber(price);
     const parsedStock = parseIntSafe(stock, 0);
+    const isFeaturedFlag = isFeatured === true || isFeatured === 'true' || isFeatured === 'yes' ? 1 : 0;
+    const isBestsellerFlag = isBestseller === true || isBestseller === 'true' || isBestseller === 'yes' ? 1 : 0;
 
     if (parsedPrice <= 0) {
       return createErrorResponse('Price must be greater than 0', HTTP_STATUS.BAD_REQUEST);
@@ -72,7 +89,24 @@ export async function PUT(
       // Update product with slug
       [, updateError] = await executeQuery(
         PRODUCT_QUERIES.UPDATE,
-        [name, slug, description || '', parsedPrice, parsedStock, params.id]
+        [
+          name,
+          slug,
+          category || null,
+          brand || null,
+          sku || null,
+          description || '',
+          short_description || null,
+          parsedPrice,
+          parsedStock,
+          isFeaturedFlag,
+          isBestsellerFlag,
+          image_url || null,
+          tags || null,
+          meta_title || null,
+          meta_description || null,
+          params.id,
+        ]
       );
     } catch (slugError: any) {
       // If slug column doesn't exist, update without slug (backward compatibility)
